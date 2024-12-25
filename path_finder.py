@@ -1,4 +1,5 @@
 from tree import Node
+from collections import deque
 
 
 class KnightPathFinder:
@@ -16,7 +17,7 @@ class KnightPathFinder:
             raise ValueError(
                 "Starting coordinates must be within the 8x8 board boundaries."
             )
-        self.pos = pos
+        self._pos = pos
         self._root = Node(pos)
         self._considered_positions = {pos}
 
@@ -40,6 +41,20 @@ class KnightPathFinder:
         new_moves = [i for i in valid_moves if i not in self._considered_positions]
         return new_moves
 
+    def build_move_tree(self):
+        queue = deque([self._root])
+        while queue:
+            current_node = queue.popleft()
+            children = self.new_move_positions(current_node.value)
+            for child in children:
+                self._considered_positions.add(child)
+                current_node.add_child(Node(child))
+                queue.append(Node(child))
+
+
+# finder = KnightPathFinder((0, 0))
+# print(finder.new_move_positions((0, 0)))
 
 finder = KnightPathFinder((0, 0))
-print(finder.new_move_positions((0, 0)))  # Expected outcome: {(1, 2), (2, 1)}
+finder.build_move_tree()
+print(finder._root.children)
